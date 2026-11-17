@@ -1,0 +1,126 @@
+name: Update games
+
+# Keeps the built copies of the games in step with their repositories.
+#
+# Every half hour this asks GitHub whether any game's repository has moved on since its copy here
+# was built; versions.txt holds the commit each copy came from. A game that has changed is rebuilt
+# from its repository's default branch and committed to this branch. GitHub Pages publishes the
+# branch, so that commit is what puts the new build online.
+#
+# To update at once instead of waiting, or to rebuild everything:
+# Actions > Update games > Run workflow.
+
+on:
+  schedule:
+    - cron: '7,37 * * * *'
+  workflow_dispatch:
+    inputs:
+      rebuild_all:
+        description: Rebuild every game, changed or not
+        type: boolean
+        default: false
+
+# One run at a time: two must not both try to commit.
+concurrency:
+  group: update-games
+
+jobs:
+  # Builds the games. This runs the games' own code and everything they depend on, so it is only
+  # allowed to read this repository. What it builds is handed to the next job as a file.
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    outputs:
+      changed: ${{ steps.pack.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Rebuild the games that have changed
+        env:
+          REBUILD_ALL: ${{ inputs.rebuild_all }}
+        run: |
+          if [ "$REBUILD_ALL" = "true" ]; then
+            ./build.sh --latest all
+          else
+            ./build.sh --latest
+          fi
+
+      # Runs even when a game failed to build, so that the ones that did build still go out.
+      - name: Pack what changed
+        id: pack
+        if: ${{ !cancelled() }}
+        run: |
+          if [ ! -f versions.txt ]; then
+            echo "Nothing was built."
+            exit 0
+          fi
+          games=$(grep -v '^#' versions.txt | cut -d' ' -f1)
+          git add -A -- versions.txt $games
+          if git diff --cached --quiet; then
+            echo "Every game is already up to date."
+            exit 0
+          fi
+          git diff --cached --stat | tail -n 15
+          tar -cf "$RUNNER_TEMP/games.tar" versions.txt $games -C .sources updated.txt
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() && steps.pack.outputs.changed == 'true' }}
+        with:
+          name: games
+          path: ${{ runner.temp }}/games.tar
+          retention-days: 1
+
+  # Commits the new builds. This job may write to the repository, and runs none of the games' code.
+  publish:
+    needs: build
+    if: ${{ !cancelled() && needs.build.outputs.changed == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: games
+          path: ${{ runner.temp }}
+
+      - name: Commit and push the new builds
+        run: |
+          built="$RUNNER_TEMP/games.tar"
+          known=$(sed -n 's/^ALL_GAMES="\(.*\)"$/\1/p' build.sh)
+          games=$(tar -xOf "$built" versions.txt | grep -v '^#' | cut -d' ' -f1)
+          # Only the folders build.sh knows as games are replaced, and replaced whole, so that
+          # files a build no longer makes are removed.
+          for game in $games; do
+            case " $known " in
+              *" $game "*) rm -rf "$game" ;;
+              *) echo "not a game folder: $game"; exit 1 ;;
+            esac
+          done
+          mkdir "$RUNNER_TEMP/games"
+          tar -xf "$built" -C "$RUNNER_TEMP/games"
+          for game in $games; do cp -R "$RUNNER_TEMP/games/$game" "$game"; done
+          cp "$RUNNER_TEMP/games/versions.txt" versions.txt
+
+          git add -A -- versions.txt $games
+          if git diff --cached --quiet; then
+            echo "Every game is already up to date."
+            exit 0
+          fi
+          names=$(cut -d: -f1 "$RUNNER_TEMP/games/updated.txt" | paste -sd, - | sed 's/,/, /g')
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit --quiet -m "Update ${names:-the games}" -m "$(cat "$RUNNER_TEMP/games/updated.txt")" -m "Built by the Update games workflow."
+          git show --stat --format='%h %s' HEAD | tail -n 15
+          git push origin "HEAD:${GITHUB_REF_NAME}"

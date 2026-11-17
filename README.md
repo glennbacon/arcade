@@ -27,37 +27,68 @@ build step and no scripts.
 | `assets/` | The picture on each game's card, and the picture shown when a link to the arcade is shared |
 | `super-daddio/`, `super-daddio-voxel/`, `blorps-big-romp/`, `blorps-big-romp-2/`, `amped-ascent/` | A built copy of each game |
 | `build.sh` | Rebuilds those copies from the games' repositories |
+| `versions.txt` | The commit of its repository that each copy was built from |
+| `.github/workflows/update-games.yml` | Runs `build.sh` every half hour, for the games that have changed |
 | `screenshot.png` | The picture at the top of this page |
 | `.nojekyll` | Tells GitHub Pages to publish the files untouched |
 
 The games are developed in their own repositories. The five folders here hold only what their
-builds produce, so do not edit them by hand: change the game in its repository, then update its
-copy here.
+builds produce, so do not edit them by hand: change the game in its repository, and its copy here
+follows.
 
-## Updating a game
+## How the games stay up to date
+
+A workflow, [`update-games.yml`](.github/workflows/update-games.yml), runs every half hour. It asks
+GitHub for the newest commit on the default branch of each game's repository and compares it with
+`versions.txt`. A game whose repository has moved on is rebuilt from that branch and committed here
+by `github-actions[bot]`, and GitHub Pages publishes the commit. So a change that reaches a game's
+default branch is in the arcade about half an hour later, with nothing to do by hand.
+
+- **To update at once**, open this repository's **Actions** tab, choose **Update games** and press
+  **Run workflow**. Ticking *Rebuild every game* rebuilds them all, changed or not.
+- **Only the default branch counts.** Work on a game's other branches is not published.
+- **If a game does not build**, its old copy stays, the other games are still updated, and the run
+  shows as failed in the Actions tab. The next run tries again.
+- **If the games stop updating**, look at **Update games** in the Actions tab. GitHub switches off
+  scheduled workflows in a public repository that has had no activity for 60 days; a button there
+  switches it back on.
+
+The workflow builds in one job and commits in another. The job that builds runs the games' code and
+everything they depend on, so it may only read this repository; the job that may write to it runs
+none of that, and replaces nothing but the games' folders and `versions.txt`.
+
+## Updating a game by hand
 
 ```bash
-./build.sh                 # every game
+./build.sh                 # every game, from the copies of the repositories on this machine
 ./build.sh amped-ascent    # only the ones named
+./build.sh --latest        # what the workflow runs: only the games that have changed on GitHub
+./build.sh --latest all    # every game, from GitHub, changed or not
 ```
 
-This needs bash, git and [Node.js](https://nodejs.org/) 22 or newer. The script looks for the game
-repositories next to this one (`../superdaddio`, `../blorps-big-romp`, `../blorps-big-romp2`,
-`../AmpedAscent`); set `GAMES_DIR` to look somewhere else. A repository that is not there is cloned
-from GitHub into `.sources/`, which git ignores. It builds whatever is checked out, so check out the
-version you want to publish first.
+This needs bash, git and [Node.js](https://nodejs.org/) 22 or newer.
 
-Then commit the folders that changed and push. GitHub Pages publishes the new copy.
+Without `--latest`, the script looks for the game repositories next to this one (`../superdaddio`,
+`../blorps-big-romp`, `../blorps-big-romp2`, `../AmpedAscent`); set `GAMES_DIR` to look somewhere
+else. A repository that is not there is cloned from GitHub into `.sources/`, which git ignores. It
+builds whatever is checked out, which is the way to try a branch of a game inside the arcade before
+merging it.
 
-To look at the site before pushing, serve this folder and open <http://localhost:8000>:
+With `--latest`, it leaves the repositories on this machine alone and builds from a fresh clone of
+each default branch.
+
+To look at the site, serve this folder and open <http://localhost:8000>:
 
 ```bash
 python3 -m http.server
 ```
 
+To publish what you built, commit the folders that changed, with `versions.txt`, and push.
+
 ## Adding a game
 
-1. Add a line for it to the `build` function in `build.sh`, and its name to the list near the end.
+1. In `build.sh`, add its name to `ALL_GAMES` and its repository to `repo_of`. If it is built with
+   Vite rather than kept as one built `index.html`, give it a line in `build` as well.
 2. Put an 800 × 480 picture of it in `assets/`.
 3. Copy one of the `<li class="game">` blocks in `index.html`, and change the picture, the text, the
    links and `--accent`, the card's colour.
