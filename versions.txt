@@ -2,6 +2,6 @@
 # Written by build.sh. Each line is: game, repository, commit.
 super-daddio superdaddio 24fa14b0b07710f5440c39dd4921d64b051ee69d
 super-daddio-voxel superdaddio 24fa14b0b07710f5440c39dd4921d64b051ee69d
-blorps-big-romp blorps-big-romp 07ce62922da5402729000a8e99b575aa92c58305
+blorps-big-romp blorps-big-romp 813c4bba1fbe5b5898a600459dc38d90f762bfbf
 blorps-big-romp-2 blorps-big-romp2 459760620b8ec906a476220b93bb896b081d3a13
 amped-ascent AmpedAscent 7e3d3dface7e00bcf3bc994fbbe77b1113cc62b5
