@@ -46,6 +46,8 @@ default branch is in the arcade about half an hour later, with nothing to do by 
 
 - **To update at once**, open this repository's **Actions** tab, choose **Update games** and press
   **Run workflow**. Ticking *Rebuild every game* rebuilds them all, changed or not.
+- **It also runs when `build.sh` or the workflow itself changes** on this repository's default
+  branch, so a change to how the games are built is tried straight away.
 - **Only the default branch counts.** Work on a game's other branches is not published.
 - **If a game does not build**, its old copy stays, the other games are still updated, and the run
   shows as failed in the Actions tab. The next run tries again.
@@ -92,6 +94,8 @@ To publish what you built, commit the folders that changed, with `versions.txt`,
 2. Put an 800 × 480 picture of it in `assets/`.
 3. Copy one of the `<li class="game">` blocks in `index.html`, and change the picture, the text, the
    links and `--accent`, the card's colour.
+
+Once the change to `build.sh` is pushed, the workflow builds the new game's folder and commits it.
 
 The cards sit three to a row with the last row centred. That is written for five cards: with a
 different number, change the `.game:nth-child` rules in the page's styles.
