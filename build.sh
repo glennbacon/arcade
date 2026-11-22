@@ -1,5 +1,5 @@
 #!/bin/bash
-# Rebuilds the five games from their own repositories and copies each one into this site.
+# Rebuilds the six games from their own repositories and copies each one into this site.
 #
 #   ./build.sh                 # every game, from the copies of the repositories on this machine
 #   ./build.sh amped-ascent    # only the ones named
@@ -8,7 +8,7 @@
 #   ./build.sh --latest all            # every game, from GitHub, changed or not
 #
 # Without --latest, the game repositories are looked for next to this one (../superdaddio,
-# ../blorps-big-romp, ../blorps-big-romp2, ../AmpedAscent), and whatever is checked out there is
+# ../blorps-big-romp, ../blorps-big-romp2, ../blorps-big-romp3, ../AmpedAscent), and whatever is checked out there is
 # built. Set GAMES_DIR to look somewhere else. A repository that is not there is cloned from GitHub
 # into .sources/, which git ignores.
 #
@@ -26,7 +26,7 @@ SITE=$PWD
 GAMES_DIR=${GAMES_DIR:-$SITE/..}
 OWNER=https://github.com/glennbacon
 VERSIONS=$SITE/versions.txt
-ALL_GAMES="super-daddio super-daddio-voxel blorps-big-romp blorps-big-romp-2 amped-ascent"
+ALL_GAMES="super-daddio super-daddio-voxel blorps-big-romp blorps-big-romp-2 blorps-big-romp-3 amped-ascent"
 
 LATEST=
 if [ "${1:-}" = "--latest" ]; then LATEST=1; shift; fi
@@ -37,6 +37,7 @@ repo_of() {
     super-daddio|super-daddio-voxel) echo superdaddio ;;
     blorps-big-romp)                 echo blorps-big-romp ;;
     blorps-big-romp-2)               echo blorps-big-romp2 ;;
+    blorps-big-romp-3)               echo blorps-big-romp3 ;;
     amped-ascent)                    echo AmpedAscent ;;
     *) echo "unknown game: $1" >&2; return 1 ;;
   esac

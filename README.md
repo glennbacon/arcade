@@ -1,10 +1,10 @@
 # Arcade
 
-Five games by Glenn Bacon that play in the browser, on a phone or a desktop, with nothing to install.
+Six games by Glenn Bacon that play in the browser, on a phone or a desktop, with nothing to install.
 
 **[Open the arcade](https://glennbacon.github.io/arcade/)**
 
-![The arcade page: a card for each of the five games under the word ARCADE](screenshot.png)
+![The arcade page: a card for each of the six games under the word ARCADE](screenshot.png)
 
 ## The games
 
@@ -14,6 +14,7 @@ Five games by Glenn Bacon that play in the browser, on a phone or a desktop, wit
 | **Super Daddio 3D** | The same game remade as a voxel diorama. | [Play](https://glennbacon.github.io/arcade/super-daddio-voxel/) | [superdaddio](https://github.com/glennbacon/superdaddio), in `voxel/` |
 | **Blorp's Big Romp** | A voxel platformer. Six worlds, thirty levels and a map to walk between them. | [Play](https://glennbacon.github.io/arcade/blorps-big-romp/) | [blorps-big-romp](https://github.com/glennbacon/blorps-big-romp) |
 | **Blorp's Big Romp 2** | Its sequel. Eight worlds, forty levels and 120 moon shards to find. | [Play](https://glennbacon.github.io/arcade/blorps-big-romp-2/) | [blorps-big-romp2](https://github.com/glennbacon/blorps-big-romp2) |
+| **Blorp's Big Romp 3** | The third. Ten worlds, fifty levels, 150 sun sparks, and a picture with mirrors in the water. | [Play](https://glennbacon.github.io/arcade/blorps-big-romp-3/) | [blorps-big-romp3](https://github.com/glennbacon/blorps-big-romp3) |
 | **Amped Ascent** | An electric hill-climb driving game. Endless runs, a 90-level adventure, a garage and a level editor. | [Play](https://glennbacon.github.io/arcade/amped-ascent/) | [AmpedAscent](https://github.com/glennbacon/AmpedAscent) |
 
 ## What is where
@@ -25,14 +26,14 @@ build step and no scripts.
 |---|---|
 | `index.html` | The arcade page, with its styles |
 | `assets/` | The picture on each game's card, and the picture shown when a link to the arcade is shared |
-| `super-daddio/`, `super-daddio-voxel/`, `blorps-big-romp/`, `blorps-big-romp-2/`, `amped-ascent/` | A built copy of each game |
+| `super-daddio/`, `super-daddio-voxel/`, `blorps-big-romp/`, `blorps-big-romp-2/`, `blorps-big-romp-3/`, `amped-ascent/` | A built copy of each game |
 | `build.sh` | Rebuilds those copies from the games' repositories |
 | `versions.txt` | The commit of its repository that each copy was built from |
 | `.github/workflows/update-games.yml` | Runs `build.sh` every half hour, for the games that have changed |
 | `screenshot.png` | The picture at the top of this page |
 | `.nojekyll` | Tells GitHub Pages to publish the files untouched |
 
-The games are developed in their own repositories. The five folders here hold only what their
+The games are developed in their own repositories. The six folders here hold only what their
 builds produce, so do not edit them by hand: change the game in its repository, and its copy here
 follows.
 
@@ -71,7 +72,7 @@ none of that, and replaces nothing but the games' folders and `versions.txt`.
 This needs bash, git and [Node.js](https://nodejs.org/) 22 or newer.
 
 Without `--latest`, the script looks for the game repositories next to this one (`../superdaddio`,
-`../blorps-big-romp`, `../blorps-big-romp2`, `../AmpedAscent`); set `GAMES_DIR` to look somewhere
+`../blorps-big-romp`, `../blorps-big-romp2`, `../blorps-big-romp3`, `../AmpedAscent`); set `GAMES_DIR` to look somewhere
 else. A repository that is not there is cloned from GitHub into `.sources/`, which git ignores. It
 builds whatever is checked out, which is the way to try a branch of a game inside the arcade before
 merging it.
@@ -97,8 +98,8 @@ To publish what you built, commit the folders that changed, with `versions.txt`,
 
 Once the change to `build.sh` is pushed, the workflow builds the new game's folder and commits it.
 
-The cards sit three to a row with the last row centred. That is written for five cards: with a
-different number, change the `.game:nth-child` rules in the page's styles.
+The cards sit three to a row, which six cards fill exactly. With a number that leaves the last row
+short, add `.game:nth-child` rules to the page's styles to centre it.
 
 ## Publishing
 
@@ -121,6 +122,6 @@ Super Daddio repository.
 
 **Other people's work.** The built games include [three.js](https://github.com/mrdoob/three.js) and
 [planck.js](https://github.com/piqnt/planck.js), both MIT, and Super Daddio includes the "Pixelated"
-typeface, copyright © 2007 Galactic Federation Fontworks. The two Blorp games load three.js and
+typeface, copyright © 2007 Galactic Federation Fontworks. The three Blorp games load three.js and
 their fonts from CDNs; the arcade page loads [Pixelify Sans](https://fonts.google.com/specimen/Pixelify+Sans)
 (SIL Open Font License) from Google Fonts.
