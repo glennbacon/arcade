@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Arcade — games by Glenn Bacon</title>
-<meta name="description" content="Five games by Glenn Bacon that play in the browser, on a phone or a desktop: Super Daddio, Super Daddio 3D, Blorp's Big Romp, Blorp's Big Romp 2 and Amped Ascent. Free, no ads, nothing to install.">
+<meta name="description" content="Six games by Glenn Bacon that play in the browser, on a phone or a desktop: Super Daddio, Super Daddio 3D, Blorp's Big Romp, Blorp's Big Romp 2, Blorp's Big Romp 3 and Amped Ascent. Free, no ads, nothing to install.">
 <meta name="theme-color" content="#0b0c1c">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Arcade — games by Glenn Bacon">
-<meta property="og:description" content="Five games that play in the browser, on a phone or a desktop. Free, no ads, nothing to install.">
+<meta property="og:description" content="Six games that play in the browser, on a phone or a desktop. Free, no ads, nothing to install.">
 <meta property="og:url" content="https://glennbacon.github.io/arcade/">
 <meta property="og:image" content="https://glennbacon.github.io/arcade/assets/social.png">
 <meta property="og:image:width" content="1200">
@@ -81,7 +81,6 @@ h1 b:nth-child(6) { color: #c79bff; }
   transition: transform .12s ease-out, box-shadow .12s ease-out, border-color .12s ease-out;
 }
 @supports (color: color-mix(in srgb, red, blue)) { .game { --shadow: color-mix(in srgb, var(--accent) 45%, #000); } }
-.game:nth-child(4) { grid-column: 2 / span 2; }
 .game:hover, .game:focus-within { transform: translateY(-4px); border-color: var(--accent); box-shadow: 0 10px 0 var(--shadow); }
 .shot { display: block; aspect-ratio: 5 / 3; overflow: hidden; border-radius: 4px 4px 0 0; background: #05050e; border-bottom: 2px solid var(--line); }
 .shot img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .25s ease-out; }
@@ -115,13 +114,11 @@ footer a:hover { color: var(--text); }
 
 @media (max-width: 1000px) {
   .games { grid-template-columns: repeat(4, 1fr); }
-  .game:nth-child(4) { grid-column: span 2; }
-  .game:nth-child(5) { grid-column: 2 / span 2; }
 }
 @media (max-width: 660px) {
   header { padding: 40px 0 30px; }
   .games { grid-template-columns: 1fr; gap: 22px; }
-  .game, .game:nth-child(4), .game:nth-child(5) { grid-column: auto; }
+  .game { grid-column: auto; }
 }
 @media (prefers-reduced-motion: reduce) {
   .freeplay { animation: none; }
@@ -136,7 +133,7 @@ footer a:hover { color: var(--text); }
 <header class="wrap">
   <p class="by">Glenn Bacon's</p>
   <h1><span class="sr-only">Arcade</span><span aria-hidden="true"><b>A</b><b>R</b><b>C</b><b>A</b><b>D</b><b>E</b></span></h1>
-  <p class="lede">Five games that play right here in the browser, on a phone or a desktop. No ads, no sign-up, nothing to install.</p>
+  <p class="lede">Six games that play right here in the browser, on a phone or a desktop. No ads, no sign-up, nothing to install.</p>
   <p class="freeplay">FREE PLAY</p>
 </header>
 
@@ -199,6 +196,20 @@ footer a:hover { color: var(--text); }
       </div>
     </li>
 
+    <li class="game" style="--accent:#ff9a3d">
+      <div class="shot"><img src="assets/blorps-big-romp-3.webp" width="800" height="480" alt="Blorp's Big Romp 3: Blorp in a garden of cherry trees and red gates, with hills and clouds mirrored in a river behind him."></div>
+      <div class="body">
+        <p class="kind">Platformer · voxel</p>
+        <h2>Blorp's Big Romp 3</h2>
+        <p class="blurb">Baron Blackout is putting out the sun, one spark at a time. Blorp bounces, dashes and wall-kicks across ten new worlds to win them back, in a picture with mirrors in the water, shafts of sunlight and levels in the dark.</p>
+        <ul class="facts"><li>50 levels</li><li>10 worlds</li><li>150 sun sparks</li><li>Keyboard</li><li>Touch</li></ul>
+        <div class="actions">
+          <a class="play" href="blorps-big-romp-3/">Play<span class="sr-only"> Blorp's Big Romp 3</span></a>
+          <a class="source" href="https://github.com/glennbacon/blorps-big-romp3">Source<span class="sr-only"> of Blorp's Big Romp 3</span></a>
+        </div>
+      </div>
+    </li>
+
     <li class="game" style="--accent:#ffc928">
       <div class="shot"><img src="assets/amped-ascent.webp" width="800" height="480" alt="Amped Ascent: a red electric buggy climbs a hill through a glowing crystal cavern, collecting coins."></div>
       <div class="body">
@@ -218,7 +229,7 @@ footer a:hover { color: var(--text); }
 
 <footer class="wrap">
   <p>Made by Glenn Bacon. Each game keeps your progress in this browser.</p>
-  <p>The code of every game is open source under the MIT License: <a href="https://github.com/glennbacon/superdaddio">Super Daddio</a>, <a href="https://github.com/glennbacon/blorps-big-romp">Blorp's Big Romp</a>, <a href="https://github.com/glennbacon/blorps-big-romp2">Blorp's Big Romp 2</a>, <a href="https://github.com/glennbacon/AmpedAscent">Amped Ascent</a> and <a href="https://github.com/glennbacon/arcade">this page</a>. Super Daddio's artwork, sound effects and music are not MIT: they may be used for non-commercial purposes only.</p>
+  <p>The code of every game is open source under the MIT License: <a href="https://github.com/glennbacon/superdaddio">Super Daddio</a>, <a href="https://github.com/glennbacon/blorps-big-romp">Blorp's Big Romp</a>, <a href="https://github.com/glennbacon/blorps-big-romp2">Blorp's Big Romp 2</a>, <a href="https://github.com/glennbacon/blorps-big-romp3">Blorp's Big Romp 3</a>, <a href="https://github.com/glennbacon/AmpedAscent">Amped Ascent</a> and <a href="https://github.com/glennbacon/arcade">this page</a>. Super Daddio's artwork, sound effects and music are not MIT: they may be used for non-commercial purposes only.</p>
 </footer>
 
 </body>
