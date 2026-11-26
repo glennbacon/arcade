@@ -1775,7 +1775,7 @@ const G={state:'title',levelIdx:0,open:0,score:0,coins:0,lives:3,cp:false,time:0
 const input={left:false,right:false,jump:false,run:false,down:false,jumpBuf:0,runEdge:false,downEdge:false};
 const player={x:3.5,y:2,vx:0,vy:0,w:0.7,h:0.9,form:0,prevForm:0,face:1,onGround:true,jumping:false,coyote:0,inv:0,star:0,dead:false,deadT:0,goal:null,
   walkPh:0,idleT:0,combo:0,riding:null,gHold:28.125,gFall:98.4,airMax:WALK_MAX,springHold:false,growT:0,fireCool:0,skid:false,squash:0,
-  swim:false,stroke:0,wall:0,wallSide:0,wallT:0,wallLock:0,pound:0,poundT:0,airJumps:0,glide:false,warp:null,pod:null,launchT:0,dustT:0,flapT:0};
+  swim:false,stroke:0,leap:0,wall:0,wallSide:0,wallT:0,wallLock:0,pound:0,poundT:0,airJumps:0,glide:false,warp:null,pod:null,launchT:0,dustT:0,flapT:0};
 const COMBO=[100,200,400,800,1000,2000,4000,8000];
 const togHold=new Set(); /* red or blue tiles that turned solid around Blorp: they wait until he has stepped out */
 
@@ -1783,7 +1783,7 @@ function setSize(){ player.h=player.form>0?1.75:0.9; }
 function resetPlayer(x,y){
   const p=player; p.x=x; p.y=y; p.vx=0; p.vy=0; p.face=1; p.onGround=true; p.jumping=false; p.coyote=0; p.inv=0; p.star=0; p.dead=false; p.deadT=0; p.goal=null;
   p.walkPh=0; p.idleT=0; p.combo=0; p.riding=null; p.springHold=false; p.growT=0; p.fireCool=0; p.skid=false; p.squash=0; p.gHold=28.125; p.gFall=98.4; p.airMax=WALK_MAX;
-  p.swim=false; p.stroke=0; p.wall=0; p.wallSide=0; p.wallT=0; p.wallLock=0; p.pound=0; p.poundT=0; p.airJumps=0; p.glide=false; p.warp=null; p.pod=null; p.launchT=0; p.dustT=0; p.flapT=0;
+  p.swim=false; p.stroke=0; p.leap=0; p.wall=0; p.wallSide=0; p.wallT=0; p.wallLock=0; p.pound=0; p.poundT=0; p.airJumps=0; p.glide=false; p.warp=null; p.pod=null; p.launchT=0; p.dustT=0; p.flapT=0;
   setSize(); proot.visible=true; proot.rotation.set(0,0.95,0); camLead=1.5; focusY=y; setRoom();
 }
 /* the room Blorp is in; false if it has not changed */
@@ -1994,7 +1994,7 @@ function updatePlayer(dt){
   if(p.dead){ p.deadT+=dt; if(p.deadT>0.35){ p.vy-=45*dt; p.y+=p.vy*dt; } if(p.deadT>2.5){ p.deadT=-99; afterDeath(); } return; }
   if(p.goal){ if(p.goal!=='done') updateGoal(dt); return; }
   if(p.warp){ updateWarp(dt); return; }
-  p.inv=Math.max(0,p.inv-dt); p.growT=Math.max(0,p.growT-dt); p.fireCool=Math.max(0,p.fireCool-dt); p.stroke=Math.max(0,p.stroke-dt); p.wallT=Math.max(0,p.wallT-dt);
+  p.inv=Math.max(0,p.inv-dt); p.growT=Math.max(0,p.growT-dt); p.fireCool=Math.max(0,p.fireCool-dt); p.stroke=Math.max(0,p.stroke-dt); p.leap=Math.max(0,p.leap-dt); p.wallT=Math.max(0,p.wallT-dt);
   p.launchT=Math.max(0,p.launchT-dt); p.poundT=Math.max(0,p.poundT-dt); p.flapT=Math.max(0,p.flapT-dt); p.dustT-=dt; G.coinT-=dt; G.swCool-=dt;
   if(p.star>0){ p.star-=dt; if(p.star<=0){ p.star=0; musicRate(G.bossSeen?1.12:1); } }
   if(p.pod){ const q=p.pod; q.t-=dt; p.x=q.pod.x; p.y=q.pod.y-p.h/2; p.vx=p.vy=0;
@@ -2047,7 +2047,9 @@ function updatePlayer(dt){
   if(p.onGround) p.coyote=0.09; else p.coyote=Math.max(0,p.coyote-dt);
   if(input.jumpBuf>0&&!p.pound){
     if(p.swim){ if(p.stroke<=0){
-        if(!waterAt(p.x,p.y+p.h+0.4)) doJump();
+        /* at the surface a jump is a leap out. It is free of the water's drag, and it does not need the button held:
+           swimming is done in taps, so a tap has to be enough to clear a ledge three tiles above the water */
+        if(!waterAt(p.x,p.y+p.h+0.6)){ doJump(); p.leap=0.2; p.springHold=true; }
         else { p.vy=6.6; p.stroke=0.2; p.onGround=false; input.jumpBuf=0; sfx.swim(); spawnPart(p.x-p.face*0.3,p.y+p.h*0.6,0.4,'#ffffff',-p.face*0.6,1.5,0,0.7,0.08,-3,true); } } }
     else if(p.coyote>0) doJump();
     else if(p.wallT>0&&!p.onGround) wallKick();
@@ -2059,12 +2061,16 @@ function updatePlayer(dt){
   /* gravity, and everything that argues with it */
   if(p.pound===1){ p.vy=0; if(p.poundT<=0){ p.pound=2; p.vy=-25; } }
   else if(p.pound===2){ p.vy=-25; }
-  else if(p.swim){
+  else if(p.swim&&p.leap<=0){
     p.vy-=(input.down?30:11.5)*dt; const lo=input.down?-6.5:-3.5;
     if(p.vy<lo) p.vy+=(lo-p.vy)*Math.min(1,dt*12); if(p.vy>8.5) p.vy=8.5;
+  } else if(p.swim){
+    /* leaping, and not clear of the water yet: he keeps his speed until he is, so a leap rises the same height above
+       the surface however deep it began */
+    p.leap=p.vy>0?0.2:0;
   } else {
-    const hold=p.vy>0&&(p.springHold||(p.jumping&&input.jump));
-    p.vy-=(hold?p.gHold:p.gFall)*GRAV*dt; if(p.vy<=0) p.springHold=false;
+    const hold=p.vy>0&&(p.springHold||p.leap>0||(p.jumping&&input.jump));
+    p.vy-=(hold?p.gHold:p.gFall)*GRAV*dt; if(p.vy<=0){ p.springHold=false; p.leap=0; }
     let lifted=false; for(const z of winds) if(z.ay>0&&p.x>z.x0&&p.x<z.x1&&p.y+p.h*0.5>z.y0&&p.y+p.h*0.5<z.y1) lifted=true;
     const was_=p.glide; p.glide=p.form===3&&input.jump&&(p.vy<0||lifted)&&!p.onGround&&p.launchT<=0;
     if(p.glide){ if(p.vy<-2.7) p.vy=Math.min(-2.7,p.vy+90*dt); if(!was_) sfx.glide(); }
@@ -2697,7 +2703,7 @@ function w1l2(){
   /* the deep lagoon */
   B.stairs(79,4).ground(83,118,7).clear(87,2,114,6).clear(115,2,117,3).water(87,2,117,6).stairs(119,4,-1);
   B.sign(84,'Hold {down} to dive. There is a way under the wall.',7);
-  B.fill(100,4,101,9,HARD).coins(89,3,5).coins(96,2,9).coins(104,5,5).coinCol(110,2,3);
+  B.fill(100,4,101,12,HARD).coins(89,3,5).coins(96,2,9).coins(104,5,5).coinCol(110,2,3);
   B.enemy('jelly',93,3.4,{ry:1.2}).enemy('jelly',106,3,{ry:0.8,sp:1.4}).enemy('jelly',112,4.6,{ry:0.9,sp:0.8}).shard(117,2);
   B.checkpoint(124);
   B.row(128,1,'====').plat(133,2,3,'x',5,1.2).row(142,1,'======').coins(134,4,6).enemy('snapper',148,2,{rise:3.5});
